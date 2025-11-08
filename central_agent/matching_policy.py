@@ -266,7 +266,7 @@ class GreedyMatchingPolicy(MatchingPolicy):
             if not R[coord]:
                 continue
 
-            for i in range(int(np.ceil(len(R[coord]) / self.max_locations)))
+            for i in range(int(np.ceil(len(R[coord]) / self.max_locations))):
                 target_rids = R[coord][i * self.max_locations : (i + 1) * self.max_locations]
 
                 candidate_vids = self.find_candidates(coord, len(target_rids), V, reject_range)
