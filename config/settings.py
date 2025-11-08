@@ -3,7 +3,7 @@ import os
 db_dir = "data/db.sqlite3"
 DB_HOST_PATH = ''.join(['sqlite:///', db_dir])
 
-OSRM_HOSTPORT = os.getenv("OSRM_HOSTPORT", "localhost:5000")
+OSRM_HOSTPORT = os.getenv("OSRM_HOSTPORT", "localhost:5001")
 
 DEFAULT_LOG_DIR = "logs/tmp"
 DATA_DIR = "data"

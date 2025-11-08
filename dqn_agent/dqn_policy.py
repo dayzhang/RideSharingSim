@@ -39,6 +39,9 @@ class DQNDispatchPolicy(DispatchPolicy):
     def get_dispatch_decisions(self, tbd_vehicles):
         dispatch_commands = []
         for vehicle_id, vehicle_state in tbd_vehicles.iterrows():
+            # JANK FIX
+            if VehicleRepository.get(vehicle_id) is None:
+                continue
             # Get best action for this vehicle and whether it will be offduty or not
             a, offduty = self.predict_best_action(vehicle_id, vehicle_state)
             if offduty:

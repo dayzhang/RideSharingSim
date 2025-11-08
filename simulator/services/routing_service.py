@@ -43,17 +43,31 @@ class FastRoutingEngine(object):
     # (Origin - destination) pairs routes/trajectories
     def route(self, od_pairs):
         results = []
-        for (origin_lat, origin_lon), (dest_lat, dest_lon) in od_pairs:
+        osrm_needed = []
+        osrm_indices = []
+        for idx, ((origin_lat, origin_lon), (dest_lat, dest_lon)) in enumerate(od_pairs):
             x, y = mesh.convert_lonlat_to_xy(origin_lon, origin_lat)
             x_, y_ = mesh.convert_lonlat_to_xy(dest_lon, dest_lat)
             ax, ay = x_ - x, y_ - y
             axi = x_ - x + MAX_MOVE
             ayi = y_ - y + MAX_MOVE
-            
+            if (x, y) not in self.routes or (ax, ay) not in self.routes[(x, y)]:
+                osrm_needed.append(((origin_lat, origin_lon), (dest_lat, dest_lon)))
+                osrm_indices.append(idx)
+                results.append(None)  
+                continue
+            # print((x, y, ax, ay))
             trajectory = polyline.decode(self.routes[(x, y)][(ax, ay)]) # Route from origin to destination
+            
             triptime = self.tt_map[x, y, axi, ayi]
             # print(triptime)
             results.append((trajectory, triptime))
+        if osrm_needed:
+            if not hasattr(self, 'osrm_fallback'):
+                self.osrm_fallback = OSRMEngine()
+            osrm_results = self.osrm_fallback.route(osrm_needed)
+            for idx, result in zip(osrm_indices, osrm_results):
+                results[idx] = result
         return results
 
     # Compute route time for each (origin, destination) pair.

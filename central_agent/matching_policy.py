@@ -428,7 +428,8 @@ class GreedyMatchingPolicy(MatchingPolicy):
         # origin_set = list(set(origins))
         origin_set = list(origins)
         latlon2oi = {latlon: oi for oi, latlon in enumerate(origin_set)}
-        T, d = np.array(self.routing_engine.eta_many_to_many(origin_set, destins), dtype=np.float32)
+        T, d = self.routing_engine.eta_many_to_many(origin_set, destins)
+        T, d = np.array(T, dtype=np.float32), np.array(d, dtype=np.float32)
         T[np.isnan(T)] = float('inf')
         d[np.isnan(d)] = float('inf')
         T = T[[latlon2oi[latlon] for latlon in origins]]

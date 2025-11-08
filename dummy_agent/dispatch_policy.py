@@ -2,7 +2,7 @@ from novelties import status_codes
 # from .services.demand_prediction_service import DemandPredictionService
 from config.settings import TIMESTEP, MIN_DISPATCH_CYCLE, MAX_DISPATCH_CYCLE
 import numpy as np
-
+import pandas as pd
 class DispatchPolicy(object):
     def __init__(self):
         # self.demand_predictor = DemandPredictionService()
@@ -44,7 +44,7 @@ class DispatchPolicy(object):
             if current_time - self.updated_at.get(vehicle_id, 0) >= MAX_DISPATCH_CYCLE
         ]]
 
-        tbd_vehicles = tbd_idle_vehicles.append(tbd_cruising_vehicles)
+        tbd_vehicles = pd.concat([tbd_idle_vehicles, tbd_cruising_vehicles], ignore_index=True)
         # Max num of vehicles that can be dispatched in one dispatch cycle
         # One dispatch cycle = MIN_DISPATCH_CYCLE * TIMESTEP
         max_n = int(len(vehicles) / MIN_DISPATCH_CYCLE * TIMESTEP)

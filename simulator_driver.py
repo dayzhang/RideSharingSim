@@ -1,5 +1,5 @@
-#import sys
-#sys.path.insert(0, "/path/to/project")
+import sys
+sys.path.insert(0, "/Users/danielzhang/Documents/SchoolWork/cs580/RideSharingSim") # full path to repo directory
 
 
 import os
@@ -173,7 +173,7 @@ if __name__ == '__main__':
                     for r in prev_rejected_req:
                         r_df = pd.DataFrame({str(c):[float(getattr(r, c))] for c in col_names})
                         # print("B: ", len(requests), len(r_df))
-                        requests = requests.append(r_df, ignore_index=True)
+                        requests = pd.concat([requests, r_df], ignore_index=True)
 
                 sum_requests += len(requests)
                 requests = requests.set_index("id")

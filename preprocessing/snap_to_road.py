@@ -6,7 +6,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)) + '/../')
 from simulator.services.osrm_engine import OSRMEngine
 from preprocessing.preprocess_nyc_dataset import extract_bounding_box, BOUNDING_BOX
 
-def create_snapped_trips(df, engine, batch_size=10000):
+def create_snapped_trips(df, engine, batch_size=1000000):
     mm_origins = []
     mm_destins = []
     for i in range(0, len(df), batch_size):
@@ -16,7 +16,7 @@ def create_snapped_trips(df, engine, batch_size=10000):
         mm_origins += [loc for loc, _ in engine.nearest_road(origins)]
         destins = [(lat, lon) for lat, lon in zip(df_.destination_lat, df_.destination_lon)]
         mm_destins += [loc for loc, _ in engine.nearest_road(destins)]
-
+   
     df[['origin_lon', 'origin_lat']] = mm_origins
     df[['destination_lon', 'destination_lat']] = mm_destins
     df = extract_bounding_box(df, BOUNDING_BOX)

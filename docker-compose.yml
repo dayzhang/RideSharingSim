@@ -2,22 +2,40 @@ version: '3.1'
 
 services:
   sim:
-    build: ./docker
+    build: .
+    working_dir: /app
+    platform: linux/arm64
     environment:
-      OSRM_HOSTPORT: "osrm:5000"
+      - PYTHONPATH=/app
+      - OSRM_HOSTPORT=osrm:5000
     volumes:
+      - .:/app
       - ./src:/home/src
       - ./bin:/home/bin
       - ./data:/home/data
       - ./logs:/home/logs
-    command: ./bin/run.sh
+    # command: ./bin/run.sh
     depends_on:
       - osrm
+    networks:
+      - app-network
 
   osrm:
-    image: osrm/osrm-backend
+    image: ghcr.io/project-osrm/osrm-backend
+    platform: linux/arm64
     volumes:
       - ./osrm:/data
     ports:
-      - "5000:5000"
+      - "5001:5000"
     command: osrm-routed --algorithm mld --verbosity error /data/NewYork.osrm
+    networks:
+        - app-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/nearest/v1/driving/0,0?number=1"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+networks:
+  app-network:
+    driver: bridge

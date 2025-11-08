@@ -1,4 +1,5 @@
-FROM python:3.6
+FROM python:3.9
+WORKDIR /app
 
 USER root
 RUN set -x && \
@@ -9,4 +10,9 @@ ENV HOME=/home
 WORKDIR $HOME
 COPY ./requirements.txt /$HOME/
 RUN pip3 install -r requirements.txt
+
+COPY . .
+
+ENV PYTHONPATH=/app
+
 CMD ["python", "simulator_driver.py"]

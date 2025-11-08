@@ -15,8 +15,9 @@ def load_trip_data(path, cols, new_cols):
 
 # Get pickup time from datetime timestamp
 def convert_datetime(df):
-    df['request_datetime'] = pd.to_datetime(df.pickup_datetime).apply(lambda x: int(get_local_unixtime(x)))
-    df['trip_time'] = pd.to_datetime(df.dropoff_datetime).apply(lambda x: int(get_local_unixtime(x))) - df.request_datetime
+    format = '%Y %b %d %I:%M:%S %p'
+    df['request_datetime'] = pd.to_datetime(df.pickup_datetime, format=format).apply(lambda x: int(get_local_unixtime(x)))
+    df['trip_time'] = pd.to_datetime(df.dropoff_datetime, format=format).apply(lambda x: int(get_local_unixtime(x))) - df.request_datetime
     df = df.drop(['pickup_datetime', 'dropoff_datetime'], axis=1)
     return df
 
@@ -24,6 +25,15 @@ def convert_datetime(df):
 def remove_outliers(df):
     df['distance'] = great_circle_distance(df.origin_lat, df.origin_lon, df.destination_lat, df.destination_lon).astype(int)
     df['speed'] = df.distance / df.trip_time / 1000 * 3600 # km/h
+
+    df['fare'] = pd.to_numeric(df['fare'], errors='coerce')
+    df['trip_time'] = pd.to_numeric(df['trip_time'], errors='coerce')
+    df = df[
+        (df['fare'].notna()) & 
+        (df['trip_time'].notna()) & 
+        (df['trip_time'] > 0)  
+    ]
+
     df['rpm'] = df.fare / df.trip_time * 60 # $/m
 
     df = df[(df.trip_time > 60) & (df.trip_time < 3600 * 2)]
@@ -49,14 +59,32 @@ def extract_bounding_box(df, bounding_box):
 def create_dataset(gtrip_path, ytrip_path, bounding_box):
     green_cols = ['lpep_pickup_datetime', 'Lpep_dropoff_datetime', 'Pickup_longitude', 'Pickup_latitude',
                   'Dropoff_longitude', 'Dropoff_latitude', 'Fare_amount']
+#     green_cols = [
+#     'lpep_pickup_datetime',      # lowercase
+#     'lpep_dropoff_datetime',     # lowercase
+#     'pickup_longitude',          # lowercase
+#     'pickup_latitude',           # lowercase
+#     'dropoff_longitude',         # lowercase
+#     'dropoff_latitude',          # lowercase
+#     'fare_amount'                # lowercase
+# ]
     yellow_cols = ['tpep_pickup_datetime', 'tpep_dropoff_datetime', 'pickup_longitude', 'pickup_latitude',
                    'dropoff_longitude', 'dropoff_latitude', 'fare_amount']
+    # yellow_cols = [
+    # 'tpep_pickup_datetime',      # lowercase (not 'Trip_pickup_datetime')
+    # 'tpep_dropoff_datetime',     # lowercase
+    # 'pickup_longitude',          # lowercase
+    # 'pickup_latitude',           # lowercase
+    # 'dropoff_longitude',         # lowercase
+    # 'dropoff_latitude',          # lowercase
+    # 'fare_amount'                # lowercase
+# ]
     new_cols = ['pickup_datetime', 'dropoff_datetime', 'origin_lon', 'origin_lat', 'destination_lon', 'destination_lat', 'fare']
     saved_cols = ['request_datetime', 'trip_time', 'origin_lon', 'origin_lat', 'destination_lon', 'destination_lat', 'fare']
 
     # Load green and yellow taxi trip data and merge them
     df = load_trip_data(gtrip_path, green_cols, new_cols)
-    df = df.append(load_trip_data(ytrip_path, yellow_cols, new_cols))
+    df = pd.concat([df, load_trip_data(ytrip_path, yellow_cols, new_cols)], ignore_index=True)    
     print("Load: {} records".format(len(df)))
 
     df = extract_bounding_box(df, bounding_box)

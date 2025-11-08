@@ -62,7 +62,7 @@ class DemandLoader(object):
                 """.format(dayofweek=dayofweek, hour=hour)
         demand = pd.read_sql(query, engine, index_col=["x", "y"]).demand
         M = np.zeros((MAP_WIDTH, MAP_HEIGHT))
-        for (x, y), c in demand.iteritems():
+        for (x, y), c in demand.items():
             M[x, y] += c
         return M
 
@@ -104,7 +104,7 @@ class DemandLoader(object):
                 """.format(t_start = t_start, t_end = t_end)
         demand = pd.read_sql(query, engine, index_col=["x", "y"]).demand
         M = np.zeros((MAP_WIDTH, MAP_HEIGHT))
-        for (x, y), c in demand.iteritems():
+        for (x, y), c in demand.items():
             M[x, y] += c
         return M
 

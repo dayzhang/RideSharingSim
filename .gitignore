@@ -1,1 +1,4 @@
 /data
+/osrm
+*.pyc
+/logs

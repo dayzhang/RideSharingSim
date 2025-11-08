@@ -83,6 +83,12 @@ class Simulator(object):
 
     def match_vehicles(self, commands, dqn_agent, dummy_agent):
         # print("M: ", commands)
+        for command in commands:
+            # Ensure all customer-related fields are lists
+            if "customer_id" in command:
+                for key in ["customer_id", "init_price", "duration", "distance"]:
+                    if key in command and not isinstance(command[key], (list, tuple, np.ndarray)):
+                        command[key] = [command[key]]
         vehicle_list = []
         rejected_requests = []
         accepted_commands = []
@@ -151,16 +157,23 @@ class Simulator(object):
             prev_cost = 0
             # For each vehicle
             # Need to calculate route (and order customer list) before heading to customer
+
+
+
             for index in range(len(command["customer_id"])):
                 customer = CustomerRepository.get(command["customer_id"][index])
                 if customer is None:
                     self.logger.warning("Invalid Customer id")
                     continue
-
-                prev_plan = np.copy(vehicle.current_plan)
-                prev_flags = np.copy(vehicle.pickup_flags)
-                prev_ids = np.copy(vehicle.ordered_pickups_dropoffs_ids)
-                prev_routes = np.copy(vehicle.current_plan_routes)
+                # PREVIOUS CODE
+                # prev_plan = np.copy(vehicle.current_plan)
+                # prev_flags = np.copy(vehicle.pickup_flags)
+                # prev_ids = np.copy(vehicle.ordered_pickups_dropoffs_ids)
+                # prev_routes = np.copy(vehicle.current_plan_routes)
+                prev_plan = list(vehicle.current_plan)
+                prev_flags = list(vehicle.pickup_flags)
+                prev_ids = list(vehicle.ordered_pickups_dropoffs_ids)
+                prev_routes = list(vehicle.current_plan_routes)
 
                 vehicle_accepted_cust[vid].append(command["customer_id"][index])
 
@@ -223,10 +236,15 @@ class Simulator(object):
                         rejected_requests.append(customer.get_request())
                         # if len(prev_plan) == 0:
                         #     print("Should be Empty!")
-                        vehicle.current_plan = prev_plan.tolist()
-                        vehicle.pickup_flags = prev_flags.tolist()
-                        vehicle.ordered_pickups_dropoffs_ids = prev_ids.tolist()
-                        vehicle.current_plan_routes = prev_routes.tolist()
+                        # PREVIOUS CODE
+                        # vehicle.current_plan = prev_plan.tolist()
+                        # vehicle.pickup_flags = prev_flags.tolist()
+                        # vehicle.ordered_pickups_dropoffs_ids = prev_ids.tolist()
+                        # vehicle.current_plan_routes = prev_routes.tolist()
+                        vehicle.current_plan = list(prev_plan)
+                        vehicle.pickup_flags = list(prev_flags)
+                        vehicle.ordered_pickups_dropoffs_ids = list(prev_ids)
+                        vehicle.current_plan_routes = list(prev_routes)
                         # print("B: ", vehicle.accepted_customers, vehicle_accepted_cust[vid])
                         # print("Reject: ", vid, " ", customer.get_id())
                         vehicle_accepted_cust[vid].pop()
@@ -446,10 +464,15 @@ class Simulator(object):
                     # distance_till_dropoff = dropoff_distance
 
                 # print("Min: ", min_time, min_distance)
-            vehicle.current_plan = np.copy(final_plan).tolist()
-            vehicle.pickup_flags = np.copy(final_pickup_flags).tolist()
-            vehicle.ordered_pickups_dropoffs_ids = np.copy(final_pickups_dropoffs_ids).tolist()
-            vehicle.current_plan_routes = np.copy(final_routes).tolist()
+            # PREVIOUS CODE
+            # vehicle.current_plan = np.copy(final_plan).tolist()
+            # vehicle.pickup_flags = np.copy(final_pickup_flags).tolist()
+            # vehicle.ordered_pickups_dropoffs_ids = np.copy(final_pickups_dropoffs_ids).tolist()
+            # vehicle.current_plan_routes = np.copy(final_routes).tolist()
+            vehicle.current_plan = list(final_plan)
+            vehicle.pickup_flags = list(final_pickup_flags)
+            vehicle.ordered_pickups_dropoffs_ids = list(final_pickups_dropoffs_ids)
+            vehicle.current_plan_routes = list(final_routes)
             # print("Generated Plan: ", vehicle.current_plan)
             # dist_time = []
             # for (route, time) in vehicle.current_plan_routes:

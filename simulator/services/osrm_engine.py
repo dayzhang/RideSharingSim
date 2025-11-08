@@ -7,7 +7,7 @@ from common.mesh import convert_xy_to_lonlat
 
 class OSRMEngine(object):
     """Sends and parses asynchronous requests from list of O-D pairs"""
-    def __init__(self, n_threads=8):
+    def __init__(self, n_threads=20):
         self.async_requester = AsyncRequester(n_threads)
         self.route_cache = {}
 
@@ -21,7 +21,7 @@ class OSRMEngine(object):
         responses = self.async_requester.send_async_requests(urllist)
         resultlist = []
         for res in responses:
-            print("osrm_engine.py: nearest road(): Response Struct: " + res)
+            # print("osrm_engine.py: nearest road(): Response Struct: " + str(res))
             nearest_point = res["waypoints"][0]
             location = nearest_point["location"]
             distance = nearest_point["distance"]
@@ -91,10 +91,11 @@ class OSRMEngine(object):
         res = self.async_requester.send_async_requests([url])[0]
         try:
             eta_matrix = res["durations"]
+            dist_matrix = res["distances"]
         except:
             print(origins, destins, res)
             raise
-        return eta_matrix
+        return eta_matrix, dist_matrix
 
     # Some URL getter functions
     def get_route_url(cls, from_latlon, to_latlon):
@@ -125,18 +126,24 @@ class OSRMEngine(object):
         return urlholder
 
     def get_eta_many_to_one_url(cls, latlon_list):
-        urlholder = """http://{hostport}/table/v1/driving/polyline({coords})?destinations={last_idx}""".format(
+        # urlholder = """http://{hostport}/table/v1/driving/polyline({coords})?destinations={last_idx}""".format(
+        #     hostport=OSRM_HOSTPORT,
+        #     coords=polyline.encode(latlon_list, 5),
+        #     last_idx=len(latlon_list) - 1
+        # )
+        urlholder = """http://{hostport}/table/v1/driving/polyline({coords})?destinations={last_idx}&annotations=duration,distance""".format(
             hostport=OSRM_HOSTPORT,
             coords=polyline.encode(latlon_list, 5),
             last_idx=len(latlon_list) - 1
         )
+
         return urlholder
 
 
     def get_eta_many_to_many_url(cls, from_latlon_list, to_latlon_list):
         latlon_list = from_latlon_list + to_latlon_list
         ids = range(len(latlon_list))
-        urlholder = """http://{hostport}/table/v1/driving/polyline({coords})?sources={sources}&destinations={destins}""".format(
+        urlholder = """http://{hostport}/table/v1/driving/polyline({coords})?sources={sources}&destinations={destins}&annotations=duration,distance""".format(
             hostport=OSRM_HOSTPORT,
             coords=polyline.encode(latlon_list, 5),
             sources=';'.join(map(str, ids[:len(from_latlon_list)])),

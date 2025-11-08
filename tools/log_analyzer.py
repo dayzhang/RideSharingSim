@@ -169,7 +169,7 @@ class LogAnalyzer(object):
             .fillna(0)
         )
         df = df.rename(columns={2: "ride_on", 4: "rejected"})
-        df["total"] = sum([x for _, x in df.iteritems()])
+        df["total"] = sum([x for _, x in df.items()])
         df.index = [time_utils.get_local_datetime(x) for x in df.index]
         return df
 
