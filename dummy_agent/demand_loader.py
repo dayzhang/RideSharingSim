@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from db import engine
+from sqlalchemy import text
 from common.time_utils import get_local_datetime
 from config.settings import MAP_WIDTH, MAP_HEIGHT, GLOBAL_STATE_UPDATE_CYCLE,\
     DESTINATION_PROFILE_TEMPORAL_AGGREGATION, DESTINATION_PROFILE_SPATIAL_AGGREGATION
@@ -55,12 +56,20 @@ class DemandLoader(object):
         # Load expected demand profile from DB
         localtime = get_local_datetime(t)
         dayofweek, hour = localtime.weekday(), localtime.hour
-        query = """
+        from sqlalchemy import text
+        query = text("""
           SELECT x, y, demand
           FROM demand_profile
-          WHERE dayofweek = {dayofweek} and hour = {hour};
-                """.format(dayofweek=dayofweek, hour=hour)
-        demand = pd.read_sql(query, engine, index_col=["x", "y"]).demand
+          WHERE dayofweek = :dayofweek and hour = :hour;
+                """)
+        with engine.connect() as conn:
+            result = conn.execute(query, {"dayofweek": dayofweek, "hour": hour})
+            rows = list(result)
+            if not rows:
+                return np.zeros((MAP_WIDTH, MAP_HEIGHT))
+            df = pd.DataFrame(rows, columns=['x', 'y', 'demand'])
+            df.set_index(['x', 'y'], inplace=True)
+            demand = df.demand
         M = np.zeros((MAP_WIDTH, MAP_HEIGHT))
         for (x, y), c in demand.iteritems():
             M[x, y] += c
@@ -97,12 +106,19 @@ class DemandLoader(object):
 
     @staticmethod
     def load_latest_demand(t_start, t_end):
-        query = """
+        query = text("""
           SELECT x, y, demand
           FROM demand_latest
-          WHERE t > {t_start} and t <= {t_end};
-                """.format(t_start = t_start, t_end = t_end)
-        demand = pd.read_sql(query, engine, index_col=["x", "y"]).demand
+          WHERE t > :t_start and t <= :t_end;
+                """)
+        with engine.connect() as conn:
+            result = conn.execute(query, {"t_start": t_start, "t_end": t_end})
+            rows = list(result)
+            if not rows:
+                return np.zeros((MAP_WIDTH, MAP_HEIGHT))
+            df = pd.DataFrame(rows, columns=['x', 'y', 'demand'])
+            df.set_index(['x', 'y'], inplace=True)
+            demand = df.demand
         M = np.zeros((MAP_WIDTH, MAP_HEIGHT))
         for (x, y), c in demand.iteritems():
             M[x, y] += c

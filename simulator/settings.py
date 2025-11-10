@@ -17,10 +17,10 @@ flags.DEFINE_string('save_summary_dir', os.path.join(DEFAULT_LOG_DIR, 'summary')
 flags.DEFINE_string('load_network', "", "load saved dqn_agent network.")
 flags.DEFINE_string('load_memory', "", "load saved replay memory.")
 
-flags.DEFINE_boolean('train', True, "run training dqn_agent network.")
+flags.DEFINE_boolean('train', False, "run training dqn_agent network.")
 flags.DEFINE_boolean('verbose', False, "print log verbosely.")
 
-flags.DEFINE_boolean('enable_pooling', True, "Enable RideSharing/CarPooling")
+flags.DEFINE_boolean('enable_pooling', False, "Enable RideSharing/CarPooling")
 flags.DEFINE_boolean('enable_pricing', True, "Enable Pricing Novelty")
 
 flags.DEFINE_integer('vehicles', 8000, "number of vehicles")
@@ -31,7 +31,7 @@ flags.DEFINE_integer('pretrain', 0, "run N pretraining steps using pickled exper
 flags.DEFINE_integer('start_time', 1464753600 + 3600 * 5, "simulation start datetime (unixtime)")
 flags.DEFINE_integer('start_offset', 0, "simulation start datetime offset (days)")
 
-flags.DEFINE_integer('days', 7, "simulation days")
+flags.DEFINE_integer('days', 1, "simulation days")
 
 flags.DEFINE_integer('n_diffusions', 3, "number of diffusion convolution")
 flags.DEFINE_integer('batch_size', 128, "number of samples in a batch for SGD")

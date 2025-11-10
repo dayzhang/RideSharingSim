@@ -1,12 +1,12 @@
 import os
-# db_dir = "C:\\Users\\17657\\Desktop\\RideSharing_Pricing\\data\\db.sqlite3"
-db_dir = "data/db.sqlite3"
+# Set the full path to the database
+db_dir = "data\\10_4231_GDFY-5A56\\bundle\\data\\db.sqlite3"
 DB_HOST_PATH = ''.join(['sqlite:///', db_dir])
 
 OSRM_HOSTPORT = os.getenv("OSRM_HOSTPORT", "localhost:5000")
 
 DEFAULT_LOG_DIR = "logs/tmp"
-DATA_DIR = "data"
+DATA_DIR = "data\\10_4231_GDFY-5A56\\bundle\\data"
 
 CENTER_LATITUDE = 40.75
 CENTER_LONGITUDE = -73.90
