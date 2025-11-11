@@ -190,14 +190,16 @@ if __name__ == '__main__':
                         startup_dispatch = Sim_experiment.dqn_agent.startup_dispatch(current_time, new_vehicles)
                         Sim_experiment.simulator.dispatch_vehicles(startup_dispatch)
                         # print("Done", len(new_vehicles))
-
                 if len(vehicles) == 0:
                     continue
                 else:
-                    # print("V1: ", len(vehicles))
+                    #print("V1: ", len(vehicles))
+                    #print("Running get_match_commands with {} vehicles and {} requests".format(len(vehicles), len(requests)))
                     m_commands, vehicles, num_matched = Sim_experiment.central_agent.get_match_commands(current_time,
                                                                                                  vehicles, requests)
-                    # print("V2: ", len(vehicles))
+                    #print("V2: ", len(vehicles))
+                    # raise Exception("Debug stop")
+                    #print(m_commands)
 
                     # V_R_matching = defaultdict(list)
                     # for command in m_commands:

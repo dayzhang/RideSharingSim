@@ -16,6 +16,11 @@ class MatchingPolicy(object):
         return []
 
     def find_available_vehicles(self, vehicles):
+        # print("Num idle vehicles:", len(vehicles[vehicles.status == status_codes.V_IDLE]))
+        # print("Num cruising vehicles:", len(vehicles[vehicles.status == status_codes.V_CRUISING]))
+        # print("Num occupied vehicles:", len(vehicles[(vehicles.status != status_codes.V_IDLE) & (vehicles.status != status_codes.V_CRUISING)]))
+        # print("Num idle durations > 0:", len(vehicles[vehicles.idle_duration > 0]))
+
         # This function retrieves a list of idle vehicles to serve as candidates for upcoming rides.
         idle_vehicles = vehicles[
             (((vehicles.status == status_codes.V_IDLE) |
@@ -23,6 +28,7 @@ class MatchingPolicy(object):
             (vehicles.idle_duration > 0))
             # | (vehicles.status == status_codes.V_OCCUPIED)
         ]
+        # print("Num idle vehicles:", len(idle_vehicles))
         v_list = []
         for index, v in idle_vehicles.iterrows():
             if v['current_capacity'] < v['max_capacity']:
@@ -242,10 +248,13 @@ class GreedyMatchingPolicy(MatchingPolicy):
     def match(self, current_time, vehicles, requests):
         # od_pairs = []
         match_list = []
+        #print("A", len(vehicles), len(requests))
         vehicles = self.find_available_vehicles(vehicles)
+        #print("B", len(vehicles))
         n_vehicles = len(vehicles)
         if n_vehicles == 0:
             return match_list
+        #print("Step 1 done")
 
         v_latlon = vehicles[["lat", "lon"]]
         V = defaultdict(list)

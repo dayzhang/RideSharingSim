@@ -29,7 +29,9 @@ class Central_Agent(object):
             if FLAGS.enable_pooling:
                 matching_commands = self.matching_policy.match_RS(current_time, vehicles, requests)
             else:
+                # print("Running non-pooling matching")
                 matching_commands = self.matching_policy.match(current_time, vehicles, requests)
+            #print(matching_commands)
 
             num_matched = len(matching_commands)
             updated_commands = self.init_price(matching_commands)

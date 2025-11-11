@@ -63,7 +63,7 @@ class Vehicle(object):
         if self.state.status == status_codes.V_IDLE:
             self.duration[status_codes.V_IDLE] += timestep
 
-        if self.state.status == status_codes.V_IDLE | self.state.status == status_codes.V_CRUISING:
+        if (self.state.status == status_codes.V_IDLE) | (self.state.status == status_codes.V_CRUISING):
             self.state.idle_duration += timestep
             # self.state.total_idle += timestep
         else:
